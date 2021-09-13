@@ -33,6 +33,9 @@ Generate orders with random dates between `--date-start` and `--date-end`.
 Generate orders with a specific status.
 - `wp wc generate orders <nr of orders> --status=completed`
 
+*note*: status=pre-ordered will generate pre-order products compatible with [woocommerce-pre-orders](https://woocommerce.com/products/woocommerce-pre-orders/)
+assuming all active products are pre-order products
+
 You may wish to disable emails if creating a large number of orders as this will trigger emails. To block all emails from your site, install a plugin like [Disable Emails](https://wordpress.org/plugins/disable-emails/).
 
 ### Customers

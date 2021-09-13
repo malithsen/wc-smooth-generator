@@ -32,11 +32,19 @@ class Order extends Generator {
 		if ( ! $customer instanceof \WC_Customer ) {
 			return false;
 		}
-		$products = self::get_random_products( 1, 10 );
 
-		foreach ( $products as $product ) {
-			$quantity = self::$faker->numberBetween( 1, 10 );
-			$order->add_product( $product, $quantity );
+		if( self::get_status( $assoc_args ) === 'pre-ordered' ) {
+			// assumes all products are pre-order products
+			$product = array_values(self::get_random_products( 1, 1 ))[0];
+			$order->add_product( $product, 1 );
+
+		} else {
+			$products = self::get_random_products( 1, 10 );
+
+			foreach ( $products as $product ) {
+				$quantity = self::$faker->numberBetween( 1, 10 );
+				$order->add_product( $product, $quantity );
+			}
 		}
 
 		$order->set_customer_id( $customer->get_id() );
@@ -65,6 +73,19 @@ class Order extends Generator {
 		$date .= ' ' . wp_rand( 0, 23 ) . ':00:00';
 
 		$order->set_date_created( $date );
+
+		if( self::get_status( $assoc_args ) === 'pre-ordered' ) {
+			$order_id = $order->get_id();
+			update_post_meta( $order_id, '_wc_pre_orders_is_pre_order', 1 );
+			update_post_meta( $order_id, '_wc_pre_orders_when_charged', get_post_meta( $product->get_id(), '_wc_pre_orders_when_to_charge', true ) );
+			update_post_meta( $order_id, '_wc_pre_orders_status',
+				self::random_weighted_element( array(
+				'completed'  => 70,
+				'active' => 20,
+				'cancelled'     => 10,
+				)
+			));
+		}
 
 		if ( $save ) {
 			$order->save();
